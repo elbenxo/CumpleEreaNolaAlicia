@@ -1389,9 +1389,9 @@
                     <div class="detail-value">Ilusiona Diversia</div>
                     <div class="detail-sub">CC Heron Diversia · Av. de Bruselas, 21-23 · 28108 Alcobendas (Madrid)<br>2.000 m² de parque con multiaventura de 4 pisos, camas elásticas, coches de choque, cine 5D y láser tag.</div>
                     <div class="detail-actions">
-                        <a href="https://maps.google.com/?q=Ilusiona+Diversia+Avenida+de+Bruselas+21+Alcobendas+Madrid" target="_blank" rel="noopener" class="ghost-btn">
+                        <a id="map-link" href="https://www.google.com/maps/search/?api=1&query=Ilusiona+Diversia+Av.+de+Bruselas+21+28108+Alcobendas+Madrid" target="_blank" rel="noopener" class="ghost-btn">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
-                            Ver en Google Maps
+                            Cómo llegar
                         </a>
                         <button onclick="downloadCalendar()" class="ghost-btn">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -1647,6 +1647,24 @@
         }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
 
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        /* ============================================================
+           SMART MAP LINK
+           En iOS abrimos Apple Maps (universal link). En el resto se
+           queda el href por defecto (Google Maps), que funciona en
+           Android, Windows, macOS y en el navegador del iPhone si no
+           se quiere usar Apple Maps.
+           ============================================================ */
+        (function () {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+                       || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            if (isIOS) {
+                const link = document.getElementById('map-link');
+                if (link) {
+                    link.href = 'https://maps.apple.com/?q=Ilusiona+Diversia&address=Av.+de+Bruselas+21,+28108+Alcobendas,+Madrid';
+                }
+            }
+        })();
 
         /* ============================================================
            ICS CALENDAR DOWNLOAD
