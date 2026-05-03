@@ -1059,6 +1059,21 @@
         .form-submit:active { transform: translateY(0) scale(0.99); }
         .form-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
+        .form-hint {
+            margin: -8px 0 18px;
+            padding: 12px 16px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.86rem;
+            color: var(--moondust);
+            background: rgba(255, 60, 168, 0.08);
+            border: 1px solid rgba(255, 60, 168, 0.28);
+            border-left-width: 3px;
+            border-radius: 10px;
+            line-height: 1.45;
+        }
+        .form-hint strong { color: var(--magenta); font-weight: 700; }
+        .form-hint[hidden] { display: none; }
+
         .form-message {
             display: none;
             text-align: center;
@@ -1510,7 +1525,7 @@
                         </div>
                         <h3>Hermanos y hermanas</h3>
                     </div>
-                    <p>Los hermanos son bienvenidos. El precio por hermano/a es de <strong>13,95 €</strong>, a cargo de la familia. Apúntalos en el formulario para tenerlo todo previsto.</p>
+                    <p>Los hermanos son bienvenidos <strong>a partir de 4 años</strong> (es la edad mínima del parque). El precio por hermano/a es de <strong>13,95 €</strong>, a cargo de la familia. Apúntalos en el formulario para tenerlo todo previsto.</p>
                 </div>
 
                 <div class="info-card tone-violet reveal">
@@ -1577,6 +1592,7 @@
                             <input type="number" id="siblingCount" name="siblingCount" min="1" max="5" value="1">
                         </div>
                     </div>
+                    <p id="sibling-hint" class="form-hint" hidden>El parque solo admite a hermanos/as a partir de <strong>4 años</strong>.</p>
 
                     <div class="form-group">
                         <label for="allergies">Alergias o intolerancias</label>
@@ -1707,8 +1723,9 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxspc1_p9ji9o1PtZSW_PWv4S9tWm3fwtFQzx8YmWMFFlUnQgtjzrwS8kO1v06_jZuFVw/exec';
 
         function toggleSiblings() {
-            const val = document.getElementById('siblings').value;
-            document.getElementById('sibling-count-group').style.display = val === 'Sí' ? '' : 'none';
+            const show = document.getElementById('siblings').value === 'Sí';
+            document.getElementById('sibling-count-group').style.display = show ? '' : 'none';
+            document.getElementById('sibling-hint').hidden = !show;
         }
 
         function checkAllergies() {
