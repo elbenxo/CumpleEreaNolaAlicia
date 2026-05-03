@@ -9,6 +9,7 @@ Web de invitación para el cumpleaños conjunto de **Erea, Nola y Alicia** — t
 - **Lugar:** Ilusiona Diversia · CC Heron Diversia · Av. de Bruselas 21-23 · 28108 Alcobendas (Madrid)
 - **Confirmar asistencia:** antes del 30 de mayo de 2026
 - **Hermanos/as:** 13,95 € cada uno, a cargo de la familia
+- **Merienda:** incluida en el cumple (selección de bocadillos variados + bebida + tarta estándar; no permite personalización)
 - **Alergias:** el parque solo gestiona menú sin gluten (celiaquía). Para cualquier otra alergia o intolerancia, los peques deben venir con su propia merienda
 
 ## Cumpleañeras

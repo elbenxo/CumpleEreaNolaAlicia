@@ -1385,7 +1385,7 @@
                     </div>
                     <div class="detail-label">Lugar</div>
                     <div class="detail-value">Ilusiona Diversia</div>
-                    <div class="detail-sub">CC Heron Diversia · Av. de Bruselas, 21-23 · 28108 Alcobendas (Madrid)<br>Parque infantil de 2.000 m² con castillos, camas elásticas, coches de choque, cine 5D y láser tag.</div>
+                    <div class="detail-sub">CC Heron Diversia · Av. de Bruselas, 21-23 · 28108 Alcobendas (Madrid)<br>2.000 m² de parque con multiaventura de 4 pisos, camas elásticas, coches de choque, cine 5D y láser tag.</div>
                     <div class="detail-actions">
                         <a href="https://maps.google.com/?q=Ilusiona+Diversia+Avenida+de+Bruselas+21+Alcobendas+Madrid" target="_blank" rel="noopener" class="ghost-btn">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
@@ -1406,9 +1406,9 @@
                     <div class="detail-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V12a7 7 0 0 1 14 0v9"/><path d="M3 21h18"/><path d="M9 12h6"/><circle cx="12" cy="6" r="2"/></svg>
                     </div>
-                    <div class="detail-label">Merienda + Tarta</div>
-                    <div class="detail-value">Tres tartas, una galaxia de chuches</div>
-                    <div class="detail-sub">Merienda salada y dulce, bebidas, tarta a juego con cada cumpleañera y la imprescindible bolsa de chuches para llevar a casa.</div>
+                    <div class="detail-label">Merienda y tarta</div>
+                    <div class="detail-value">Incluidas en el cumple</div>
+                    <div class="detail-sub">Selección de bocadillos variados, bebida y tarta estándar del parque. Hay opción sin gluten para celíacos. El parque no permite personalizar la tarta.</div>
                 </div>
             </div>
         </section>
@@ -1564,26 +1564,16 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="comesFor">Viene por</label>
-                            <select id="comesFor" name="comesFor">
-                                <option value="Las tres">Las tres ✦</option>
-                                <option value="Erea">Erea</option>
-                                <option value="Nola">Nola</option>
-                                <option value="Alicia">Alicia</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="siblings">Hermanos/as</label>
                             <select id="siblings" name="siblings" onchange="toggleSiblings()">
                                 <option value="No">No vienen</option>
                                 <option value="Sí">Sí, vienen</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="form-group" id="sibling-count-group" style="display:none;">
-                        <label for="siblingCount">¿Cuántos hermanos/as?</label>
-                        <input type="number" id="siblingCount" name="siblingCount" min="1" max="5" value="1">
+                        <div class="form-group" id="sibling-count-group" style="display:none;">
+                            <label for="siblingCount">¿Cuántos?</label>
+                            <input type="number" id="siblingCount" name="siblingCount" min="1" max="5" value="1">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -1742,7 +1732,6 @@
 
             const data = new URLSearchParams({
                 childName:    document.getElementById('childName').value,
-                comesFor:     document.getElementById('comesFor').value,
                 siblings:     document.getElementById('siblings').value,
                 siblingCount: document.getElementById('siblings').value === 'Sí'
                               ? document.getElementById('siblingCount').value : '0',
