@@ -30,6 +30,7 @@ Web de invitación para el cumpleaños conjunto de **Erea, Nola y Alicia** — t
 - **Modal de alergias:** se dispara automáticamente si en el formulario se selecciona "Otra alergia o intolerancia", recordando que hay que traer la merienda aparte.
 - **RSVP:** Formulario preparado para Google Apps Script — pegar la URL en la constante `SCRIPT_URL` dentro del `<script>` de `index.html` cuando se quiera activar.
 - **Sin datos personales públicos:** ni email ni teléfono ni redes sociales aparecen en la página. La confirmación se hace por el formulario o por el canal privado habitual de la familia.
+- **No indexable:** la página lleva `<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">` y un `robots.txt` con `Disallow: /`. La URL sigue siendo pública para quien la reciba, pero los buscadores no deben indexarla ni cachearla.
 
 ## Despliegue
 
