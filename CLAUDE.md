@@ -8,7 +8,7 @@ Web de invitación para el cumpleaños conjunto de **Erea, Nola y Alicia** — t
 - **Hora:** 18:30 h — 22:00 h
 - **Lugar:** Ilusiona Diversia · CC Heron Diversia · Av. de Bruselas 21-23 · 28108 Alcobendas (Madrid)
 - **Confirmar asistencia:** antes del 30 de mayo de 2026
-- **Hermanos/as:** entrada al parque a cargo de la familia (precio pendiente de confirmar). **No incluye merienda**, pero pueden entrar a jugar. Edad mínima del parque: **4 años**
+- **Hermanos/as:** **no hay sitio para hermanos**; el cumple es solo para las invitadas
 - **Merienda:** incluida en el cumple (selección de bocadillos variados + bebida + tarta)
 - **Alergias:** el parque solo gestiona menú sin gluten (celiaquía). Para cualquier otra alergia o intolerancia, los peques deben venir con su propia merienda
 
@@ -45,13 +45,13 @@ Cada push a `main` se despliega automáticamente en GitHub Pages (1-2 min).
 2. **Detalles** — fecha, horario (18:30 h — 22:00 h), lugar (con Google Maps + calendario + RSVP), merienda incluida.
 3. **Las cumpleañeras** — tres tarjetas con glifo SVG personalizado (Erea: sol, Nola: estrella fugaz, Alicia: luna+estrella).
 4. **Programa** — timeline con 3 hitos: Recepción · Fiesta · Fin.
-5. **Info útil** — confirmación, hermanos (precio pendiente, sin merienda), dress code, regalos, alergias.
+5. **Info útil** — confirmación, dress code, regalos, alergias.
 6. **RSVP** — tarjeta con borde holográfico animado, formulario completo (alergias en desplegable + popup de aviso si "Otra").
 7. **Footer** — estrellas titilando + frase con corazón animado.
 
 ## Cosas a personalizar antes de compartir
 
-- [x] Fecha, hora, lugar, coste de hermanos.
+- [x] Fecha, hora, lugar.
 - [x] Sin enlaces de WhatsApp ni email para no exponer datos personales en una web pública.
 - [ ] Si se desea recoger respuestas en Google Sheets: crear un Apps Script y pegar la URL del web app en la constante `SCRIPT_URL` (línea ~`SCRIPT_URL = ''`).
 - [ ] Revisar los taglines de cada cumpleañera por si se quieren personalizar más.
