@@ -1305,6 +1305,54 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* =========================================================
+           LOW-FI MODE
+           Se activa automáticamente desde JS (clase .low-fi en <body>)
+           cuando se detecta un móvil de gama baja: poca RAM, pocos
+           núcleos, ahorro de datos o un WebView embebido. El objetivo
+           es evitar que Chrome/Samsung Internet tire el renderer por
+           falta de memoria/GPU.
+           Mantenemos la estética (colores, gradientes estáticos,
+           tipografías) pero quitamos: sparkles, backdrop-filter,
+           drop-shadows acumulados, animaciones infinitas pesadas.
+           ========================================================= */
+        .low-fi .sparkle-field { display: none; }
+        .low-fi .star-layer { animation: none !important; }
+        .low-fi .star-layer--mid,
+        .low-fi .star-layer--big { display: none; }
+        .low-fi .number-eight {
+            animation: hero-eight-in 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+            filter: none;
+        }
+        .low-fi .number-eight::before { display: none; }
+        .low-fi .hero-names .name { animation: none; }
+        .low-fi .section-title .accent,
+        .low-fi .rsvp-title .accent,
+        .low-fi .detail-icon,
+        .low-fi .girl-name,
+        .low-fi .modal-card h3 { animation: none !important; }
+        .low-fi .pill,
+        .low-fi .detail,
+        .low-fi .girl-card,
+        .low-fi .timeline-item,
+        .low-fi .info-card,
+        .low-fi .rsvp-card,
+        .low-fi .modal-card {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background-color: rgba(31, 14, 72, 0.88);
+        }
+        .low-fi .rsvp-card::before,
+        .low-fi .girl-card::before,
+        .low-fi .girl-glyph::before { display: none !important; }
+        .low-fi *,
+        .low-fi *::before,
+        .low-fi *::after {
+            box-shadow: none !important;
+        }
+        .low-fi .heart { animation: none !important; }
+        .low-fi .footer-stars span { animation: none !important; }
     </style>
 </head>
 <body>
@@ -1625,6 +1673,43 @@
     </div>
 
     <script>
+        /* ============================================================
+           LOW-FI DETECTION
+           Activamos el modo ligero si el dispositivo da señales de
+           gama baja, ahorro de datos o navegador embebido (WebView de
+           apps como WhatsApp/Instagram). El modo apaga sparkles,
+           backdrop-filter, drop-shadows acumulados y gradientes
+           animados sobre texto — lo que hace que Chrome tire el
+           renderer en algunos móviles antiguos.
+           ============================================================ */
+        (function () {
+            const ua = navigator.userAgent || '';
+            const conn = navigator.connection || {};
+            const reasons = [];
+
+            if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2) {
+                reasons.push('deviceMemory<=2');
+            }
+            if (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4) {
+                reasons.push('hardwareConcurrency<=4');
+            }
+            if (conn.saveData) reasons.push('saveData');
+            if (conn.effectiveType && /(^|-)2g$|^slow-2g$|^3g$/.test(conn.effectiveType)) {
+                reasons.push('effectiveType:' + conn.effectiveType);
+            }
+            // WebViews embebidos (WhatsApp, Instagram, Facebook, Line, etc.)
+            if (/(FBAN|FBAV|FB_IAB|Instagram|Line\/|WhatsApp|; wv\))/i.test(ua)) {
+                reasons.push('in-app-webview');
+            }
+            // Opt-in manual con ?lite=1
+            if (/[?&]lite=1\b/.test(location.search)) reasons.push('manual');
+
+            if (reasons.length) {
+                document.body.classList.add('low-fi');
+                document.body.dataset.lowfi = reasons.join(',');
+            }
+        })();
+
         /* ============================================================
            SCROLL-TRIGGERED ENTRANCE
            ============================================================ */
