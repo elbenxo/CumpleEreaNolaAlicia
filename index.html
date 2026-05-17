@@ -1801,6 +1801,19 @@
             // Opt-out manual con ?lite=0 (limpia el flag persistente)
             if (/[?&]lite=0\b/.test(location.search)) {
                 try { localStorage.removeItem('cnea_lite'); } catch (e) {}
+                // Si ya teníamos 'persistent' en reasons, lo quitamos
+                // porque acabamos de borrar el flag de localStorage.
+                const i = reasons.indexOf('persistent');
+                if (i >= 0) reasons.splice(i, 1);
+            }
+            // Limpiamos el ?lite=... de la URL para que la URL refleje
+            // el estado real y no pelee con futuros toggles.
+            if (/[?&]lite=[01]\b/.test(location.search)) {
+                try {
+                    const clean = new URL(location.href);
+                    clean.searchParams.delete('lite');
+                    history.replaceState(null, '', clean.toString());
+                } catch (e) {}
             }
 
             if (reasons.length) {
@@ -1831,7 +1844,15 @@
                     localStorage.setItem('cnea_lite', '1');
                 }
             } catch (e) {}
-            location.reload();
+            // Recargamos en una URL sin ?lite=... para que la URL
+            // refleje el estado actual y no lo sobrescriba.
+            try {
+                const clean = new URL(location.href);
+                clean.searchParams.delete('lite');
+                location.href = clean.toString();
+            } catch (e) {
+                location.reload();
+            }
         }
 
         /* ============================================================
