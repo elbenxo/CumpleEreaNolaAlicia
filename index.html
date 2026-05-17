@@ -1305,6 +1305,75 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* =========================================================
+           LOW-FI MODE
+           Se activa automáticamente desde JS (clase .low-fi en <body>)
+           cuando se detecta un móvil de gama baja: poca RAM, pocos
+           núcleos, ahorro de datos o un WebView embebido. El objetivo
+           es evitar que Chrome/Samsung Internet tire el renderer por
+           falta de memoria/GPU.
+           Mantenemos la estética (colores, gradientes estáticos,
+           tipografías) pero quitamos: sparkles, backdrop-filter,
+           drop-shadows acumulados, animaciones infinitas pesadas.
+           ========================================================= */
+        .low-fi .sparkle-field { display: none; }
+        .low-fi .star-layer { animation: none !important; }
+        .low-fi .star-layer--mid,
+        .low-fi .star-layer--big { display: none; }
+        .low-fi .number-eight {
+            animation: hero-eight-in 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+            filter: none;
+        }
+        .low-fi .number-eight::before { display: none; }
+        .low-fi .hero-names .name { animation: none; }
+        .low-fi .section-title .accent,
+        .low-fi .rsvp-title .accent,
+        .low-fi .detail-icon,
+        .low-fi .girl-name,
+        .low-fi .modal-card h3 { animation: none !important; }
+        .low-fi .pill,
+        .low-fi .detail,
+        .low-fi .girl-card,
+        .low-fi .timeline-item,
+        .low-fi .info-card,
+        .low-fi .rsvp-card,
+        .low-fi .modal-card {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            background-color: rgba(31, 14, 72, 0.88);
+        }
+        .low-fi .rsvp-card::before,
+        .low-fi .girl-card::before,
+        .low-fi .girl-glyph::before { display: none !important; }
+        .low-fi *,
+        .low-fi *::before,
+        .low-fi *::after {
+            box-shadow: none !important;
+        }
+        .low-fi .heart { animation: none !important; }
+        .low-fi .footer-stars span { animation: none !important; }
+
+        /* Toggle manual en footer */
+        .lite-toggle {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid rgba(193, 155, 255, 0.28);
+            border-radius: 100px;
+            color: var(--starshade);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.78rem;
+            letter-spacing: 0.4px;
+            cursor: pointer;
+            opacity: 0.55;
+            transition: opacity 0.3s ease, border-color 0.3s ease;
+        }
+        .lite-toggle:hover { opacity: 1; border-color: rgba(193, 155, 255, 0.6); }
+        .lite-toggle-lite { display: none; }
+        .low-fi .lite-toggle-full { display: none; }
+        .low-fi .lite-toggle-lite { display: inline; }
     </style>
 </head>
 <body>
@@ -1620,11 +1689,107 @@
                 Hecho con <span class="heart">♥</span> para Erea, Nola y Alicia<br>
                 <em>·  ocho años de magia  ·</em>
             </p>
+            <button type="button" class="lite-toggle" onclick="toggleLiteMode()" aria-label="Cambiar entre versión completa y versión ligera">
+                <span class="lite-toggle-full">¿Va lenta? Usar versión ligera</span>
+                <span class="lite-toggle-lite">Volver a la versión completa</span>
+            </button>
         </footer>
 
     </div>
 
     <script>
+        /* ============================================================
+           LOW-FI DETECTION
+           Activamos el modo ligero cuando el dispositivo da señales de
+           gama baja, ahorro de datos, navegador embebido (WebView) o
+           cuando detectamos que una carga anterior crasheó. El modo
+           apaga sparkles, backdrop-filter, drop-shadows acumulados y
+           gradientes animados sobre texto — la combinación que tira el
+           renderer en Chrome Android antiguos y en Safari iOS con
+           memoria limitada (iPhone 6s/7/SE/8: ~2 GB RAM).
+           ============================================================ */
+        (function () {
+            const ua = navigator.userAgent || '';
+            const conn = navigator.connection || {};
+            const reasons = [];
+
+            // Crash-loop recovery: si la carga previa no llegó a
+            // completar (la pestaña murió antes de los 4s post-load),
+            // asumimos que crasheó por OOM y persistimos modo ligero.
+            // Esto es la red de seguridad principal para Safari iOS,
+            // donde no tenemos APIs para medir RAM/GPU.
+            try {
+                const lastTry = parseInt(localStorage.getItem('cnea_loadStart') || '0', 10);
+                if (lastTry && (Date.now() - lastTry) < 60000) {
+                    localStorage.setItem('cnea_lite', '1');
+                    reasons.push('crash-recovery');
+                }
+                localStorage.setItem('cnea_loadStart', String(Date.now()));
+                if (localStorage.getItem('cnea_lite') === '1') reasons.push('persistent');
+            } catch (e) { /* localStorage bloqueado (modo privado, etc.) */ }
+
+            if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2) {
+                reasons.push('deviceMemory<=2');
+            }
+            if (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4) {
+                reasons.push('hardwareConcurrency<=4');
+            }
+            if (conn.saveData) reasons.push('saveData');
+            if (conn.effectiveType && /(^|-)2g$|^slow-2g$|^3g$/.test(conn.effectiveType)) {
+                reasons.push('effectiveType:' + conn.effectiveType);
+            }
+            // WebViews embebidos (WhatsApp, Instagram, Facebook, Line, etc.)
+            if (/(FBAN|FBAV|FB_IAB|Instagram|Line\/|WhatsApp|; wv\))/i.test(ua)) {
+                reasons.push('in-app-webview');
+            }
+            // Safari iOS antiguo (<16): iPhone 6s/7/SE1/8 entran aquí.
+            // WebKit en esas versiones es muy poco tolerante a stacks
+            // de backdrop-filter + drop-shadow + gradientes animados.
+            const iosMatch = ua.match(/iPhone OS (\d+)_/) || ua.match(/CPU OS (\d+)_/);
+            if (iosMatch && parseInt(iosMatch[1], 10) < 16) {
+                reasons.push('ios<16');
+            }
+            // Opt-in manual con ?lite=1 (queda persistente)
+            if (/[?&]lite=1\b/.test(location.search)) {
+                try { localStorage.setItem('cnea_lite', '1'); } catch (e) {}
+                reasons.push('manual');
+            }
+            // Opt-out manual con ?lite=0 (limpia el flag persistente)
+            if (/[?&]lite=0\b/.test(location.search)) {
+                try { localStorage.removeItem('cnea_lite'); } catch (e) {}
+            }
+
+            if (reasons.length) {
+                document.body.classList.add('low-fi');
+                document.body.dataset.lowfi = reasons.join(',');
+            }
+
+            // Cuando la página termina de cargar sin caerse, limpiamos
+            // el marcador de "carga en curso" para que la próxima
+            // visita no se interprete como crash.
+            window.addEventListener('load', function () {
+                setTimeout(function () {
+                    try { localStorage.removeItem('cnea_loadStart'); } catch (e) {}
+                }, 4000);
+            });
+        })();
+
+        /* ============================================================
+           LITE TOGGLE
+           Permite al usuario alternar el modo ligero a mano desde el
+           footer y persistirlo en localStorage.
+           ============================================================ */
+        function toggleLiteMode() {
+            try {
+                if (localStorage.getItem('cnea_lite') === '1') {
+                    localStorage.removeItem('cnea_lite');
+                } else {
+                    localStorage.setItem('cnea_lite', '1');
+                }
+            } catch (e) {}
+            location.reload();
+        }
+
         /* ============================================================
            SCROLL-TRIGGERED ENTRANCE
            ============================================================ */
