@@ -1757,8 +1757,38 @@
             const conn = navigator.connection || {};
             const reasons = [];
 
+            // Preferencia explícita del usuario: tiene PRIORIDAD sobre
+            // toda la detección automática. Si el usuario ha tocado
+            // el toggle, respetamos su decisión incluso si su móvil
+            // parece de gama baja.
+            let pref = null;
+            try { pref = localStorage.getItem('cnea_pref'); } catch (e) {}
+
+            if (pref === 'full') {
+                // El usuario quiere modo completo. No aplicamos NADA
+                // de la detección automática. Limpiamos flags antiguos.
+                try {
+                    localStorage.removeItem('cnea_lite');
+                    localStorage.removeItem('cnea_loadStart');
+                } catch (e) {}
+                document.body.dataset.lowfi = '';
+                // Aún así limpiamos ?lite=... de la URL si viene
+                if (/[?&]lite=[01]\b/.test(location.search)) {
+                    try {
+                        const clean = new URL(location.href);
+                        clean.searchParams.delete('lite');
+                        history.replaceState(null, '', clean.toString());
+                    } catch (e) {}
+                }
+                return;
+            }
+
+            if (pref === 'lite') {
+                reasons.push('user-pref');
+            }
+
             // Crash-loop recovery: si la carga previa no llegó a
-            // completar (la pestaña murió antes de los 4s post-load),
+            // completar (la pestaña murió antes del 'load'),
             // asumimos que crasheó por OOM y persistimos modo ligero.
             // Esto es la red de seguridad principal para Safari iOS,
             // donde no tenemos APIs para medir RAM/GPU.
@@ -1775,8 +1805,11 @@
             if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2) {
                 reasons.push('deviceMemory<=2');
             }
-            if (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4) {
-                reasons.push('hardwareConcurrency<=4');
+            // Solo móviles muy antiguos (2 núcleos o menos). Antes
+            // usábamos <=4 y eso pillaba Androids mid-range modernos
+            // que renderizan la versión completa perfectamente.
+            if (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2) {
+                reasons.push('hardwareConcurrency<=2');
             }
             if (conn.saveData) reasons.push('saveData');
             if (conn.effectiveType && /(^|-)2g$|^slow-2g$|^3g$/.test(conn.effectiveType)) {
@@ -1793,18 +1826,21 @@
             if (iosMatch && parseInt(iosMatch[1], 10) < 16) {
                 reasons.push('ios<16');
             }
-            // Opt-in manual con ?lite=1 (queda persistente)
+            // Opt-in manual con ?lite=1 (queda persistente como pref)
             if (/[?&]lite=1\b/.test(location.search)) {
-                try { localStorage.setItem('cnea_lite', '1'); } catch (e) {}
+                try { localStorage.setItem('cnea_pref', 'lite'); } catch (e) {}
                 reasons.push('manual');
             }
-            // Opt-out manual con ?lite=0 (limpia el flag persistente)
+            // Opt-out manual con ?lite=0 (pref persistente = full)
             if (/[?&]lite=0\b/.test(location.search)) {
-                try { localStorage.removeItem('cnea_lite'); } catch (e) {}
-                // Si ya teníamos 'persistent' en reasons, lo quitamos
-                // porque acabamos de borrar el flag de localStorage.
-                const i = reasons.indexOf('persistent');
-                if (i >= 0) reasons.splice(i, 1);
+                try {
+                    localStorage.setItem('cnea_pref', 'full');
+                    localStorage.removeItem('cnea_lite');
+                    localStorage.removeItem('cnea_loadStart');
+                } catch (e) {}
+                // Borramos todos los reasons que se hayan acumulado
+                // antes: el usuario dijo expresamente "full".
+                reasons.length = 0;
             }
             // Limpiamos el ?lite=... de la URL para que la URL refleje
             // el estado real y no pelee con futuros toggles.
@@ -1838,19 +1874,21 @@
            footer y persistirlo en localStorage.
            ============================================================ */
         function toggleLiteMode() {
+            const isLite = document.body.classList.contains('low-fi');
             try {
-                if (localStorage.getItem('cnea_lite') === '1') {
+                if (isLite) {
+                    // El usuario quiere salir del modo ligero. Guardamos
+                    // su preferencia para que tenga prioridad sobre la
+                    // detección automática (deviceMemory, núcleos, etc.).
+                    localStorage.setItem('cnea_pref', 'full');
                     localStorage.removeItem('cnea_lite');
                 } else {
+                    localStorage.setItem('cnea_pref', 'lite');
                     localStorage.setItem('cnea_lite', '1');
                 }
-                // Es una navegación intencionada, no un crash: limpiamos
-                // el marcador para que la recarga no dispare el
-                // crash-recovery.
+                // Es una navegación intencionada, no un crash.
                 localStorage.removeItem('cnea_loadStart');
             } catch (e) {}
-            // Recargamos en una URL sin ?lite=... para que la URL
-            // refleje el estado actual y no lo sobrescriba.
             try {
                 const clean = new URL(location.href);
                 clean.searchParams.delete('lite');
