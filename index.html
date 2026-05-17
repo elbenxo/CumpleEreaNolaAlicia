@@ -1821,13 +1821,14 @@
                 document.body.dataset.lowfi = reasons.join(',');
             }
 
-            // Cuando la página termina de cargar sin caerse, limpiamos
-            // el marcador de "carga en curso" para que la próxima
-            // visita no se interprete como crash.
+            // Cuando la página dispara 'load' significa que el render
+            // sobrevivió: limpiamos el marcador para que la próxima
+            // visita no se confunda con un crash. Sin setTimeout: si
+            // esperamos varios segundos, una recarga rápida del
+            // usuario se confunde con un crash y reactiva el modo
+            // ligero en bucle.
             window.addEventListener('load', function () {
-                setTimeout(function () {
-                    try { localStorage.removeItem('cnea_loadStart'); } catch (e) {}
-                }, 4000);
+                try { localStorage.removeItem('cnea_loadStart'); } catch (e) {}
             });
         })();
 
@@ -1843,6 +1844,10 @@
                 } else {
                     localStorage.setItem('cnea_lite', '1');
                 }
+                // Es una navegación intencionada, no un crash: limpiamos
+                // el marcador para que la recarga no dispare el
+                // crash-recovery.
+                localStorage.removeItem('cnea_loadStart');
             } catch (e) {}
             // Recargamos en una URL sin ?lite=... para que la URL
             // refleje el estado actual y no lo sobrescriba.
